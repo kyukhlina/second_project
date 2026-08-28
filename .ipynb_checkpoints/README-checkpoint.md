@@ -97,9 +97,17 @@ The project draws on three linked sources, joined via `client_id`:
 | `df_final_demo` | Client demographics/financials: tenure, age, gender, number of accounts, balance, calls (6mo), logons (6mo) | Client-level profile, used to check group balance and segment behavior |
 | `df_final_experiment_clients` | `client_id`, `Variation` (Test/Control) | Assigns clients to the experimental groups being compared |
 
-The two web-data files were combined via `pd.concat` (identical schema, split rows). The
-demographics and experiment-group files were combined via `pd.merge` on `client_id` (each
+The two web-data files were combined via `pd.concat` (identical schema, split rows). 
+The demographics and experiment-group files were combined via `pd.merge` on `client_id` (each
 contributes distinct columns).
+
+
+## Notebooks 
+
+Follow this sequence: 
+
+Step1 Web data -> Step 2 Web data -> Step 3 Web data (Concat) -> Step4 EDA -> Step5 KPI
+
 
 ---
 
@@ -189,14 +197,50 @@ steps are applied, the data supports a fair, well-balanced comparison of the two
 
 ---
 
+**Successful Journey KPI Results (Completion Rate, Funnel, Completion Time, Effective Time)**
+
+Following on from the data analyis above, customer journeys were reconstructed at the visit_id level. A journey was counted as successful only if it followed the exact expected sequence — start → step_1 → step_2 → step_3 → confirm — with no skipped or out-of-order steps.
+
+**Overall completion**:
+	• 24,858 successful journeys vs. 44,347 unsuccessful — an overall success rate of 35.96%.
+	• Of the unsuccessful journeys, 31,525 never reached confirm at all, while 12,792 did reach confirm but only via an unusual/out-of-order route (so were not counted as "successful" under the strict definition).
+
+**Completion Rate — Control vs. Test**:
+
+Group	Success Rate
+Control	35.21%
+Test	36.62%
+
+Test outperforms Control by +1.41 percentage points (two-proportion z-test: z = 3.85, p = 0.00012; 95% CI for the difference: [0.69%, 2.12%]). Statistically significant.
+
+**Funnel progression** — % of journeys reaching each step:
+
+Step	Control	Test
+start	96.02%	89.28%
+step_1	66.69%	64.47%
+step_2	56.07%	56.31%
+step_3	52.13%	53.38%
+confirm	47.67%	57.70%
+
+The two groups are similar through the middle of the funnel, but diverge sharply at the final step — Test converts to confirm about 10 percentage points more often than Control. This is the clearest behavioral difference found in the entire analysis.
+
+**Completion Time (successful journeys only)**:
+
+	• Overall: mean 5.15 min, median 3.65 min (right-skewed; 7.80% of journeys flagged as unusually long via IQR, threshold 11.28 min).
+	• By group: Control mean 5.51 min / median 4.07 min; Test mean 4.85 min / median 3.33 min.
+	• Welch's t-test: p < 0.00001 (statistically significant). Cohen's d = 0.127 — a small effect size, well under the 0.2 threshold. Test clients complete faster, but the size of the improvement is modest.
+
+**Effective Time (forward-progress time, excluding abnormal pauses)**:
+	• Mean difference (Test − Control): −0.65 minutes (Test faster), 95% CI [−0.78, −0.52]. Consistent with the Completion Time result and does not cross zero, supporting a real, if small, difference.
+
+A nuance worth flagging: backward navigation was more common in Test (27.08% of visits) than Control (20.47%) — despite Test having both a higher completion rate and a faster completion time. This suggests the new design doesn't eliminate people going back a step, but does still get more of them to the end, and faster overall.
+
+---
+
 ## Next Steps
 
-- Finalize and apply the duplicate/repeated-event handling rule to the web data before
-  computing funnel and completion-rate KPIs.
-- Confirm the 20,109 non-experiment clients are excluded from all Test/Control comparisons.
-- Join the cleaned web behavior data with `Variation` to compute completion rate, average
-  time-to-completion, and error/backward-navigation rate by group.
-- Where a KPI shows a real gap between groups, break it down by age group and balance segment
-  to check whether the new UI performs differently across customer segments.
-- Document all cleaning decisions (duplicate handling, missing-value treatment, outlier
-  treatment) in a data dictionary so the analysis is fully reproducible.
+	• Hand off unsuccessful-journey patterns (31,525 never-reached-confirm, 12,792 reached-confirm-via-unusual-route) to the team members covering error/abandonment rate, since this notebook intentionally scoped to successful journeys only.
+	• Reconcile the backward-navigation nuance (higher in Test despite better outcomes) with the Step Backs KPI once the error-rate teammates' analysis is complete.
+	• Finalize the Tableau dashboard: funnel progression, funnel conversion, completion rate, completion time, and error rate, all split Control vs. Test, with statistical significance annotated per chart.
+	• Where a KPI shows a real gap between groups, break it down by age group and balance segment to check whether the new UI performs differently across customer segments.
+	• Document all cleaning decisions (duplicate handling, missing-value treatment, outlier treatment) in a data dictionary so the analysis is fully reproducible.
