@@ -4,10 +4,10 @@
 Vanguard believed that a more intuitive and modern User Interface (UI), coupled with timely in-context prompts (cues, messages, hints, or instructions provided to users directly within the context of their current task or action), could make the online process smoother for clients. The critical question was: Would these changes encourage more clients to complete the process?
 
 ### Progect goal
-Analysis of A/B test results for redisined client process based on collected client events. This repo contains the analysis notebooks and the final stakeholder presentation (vanguard_ab_test.ppt).
+Analysis of A/B test results for redesigned client process based on collected client events. This repo contains the analysis notebooks and the final stakeholder presentation (vanguard_ab_test.ppt).
 
 ### Contribution
-**Nadia**
+**Nadya**
 Notebooks: 
 - Step1_web_data_pt1.ipynb, 
 - Step2_web_data_pt2.ipynb, 
@@ -41,8 +41,8 @@ Covered steps:
 
 **Kseniia**
 Notebooks:
-- customr_journey_Kseniia_Iukhlina.ipynb, 
-- df_investigations_Kseniia_iukhlina.ipynb,
+- customr_journey_Kseniia.ipynb, 
+- df_investigations_Kseniia.ipynb,
 
 Additional files:
 - Presentation
